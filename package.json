@@ -6,5 +6,25 @@
   },
   "scripts": {
     "start": "node index.js"
-  }
+  },
+  "description": "## Índice",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lizk7755/BOG004-md-links.git"
+  },
+  "keywords": [
+    "\"markdown\"",
+    "\"links\"",
+    "\"javascript\""
+  ],
+  "author": "\"Lizeth-Rodriguez\"",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lizk7755/BOG004-md-links/issues"
+  },
+  "homepage": "https://github.com/Lizk7755/BOG004-md-links#readme"
 }
