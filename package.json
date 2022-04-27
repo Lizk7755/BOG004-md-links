@@ -1,7 +1,29 @@
 {
   "name": "md-links",
-  "version": "0.1.0",
-  "engines": {
-    "node": ">=14.x"
+  "version": "1.0.0",
+  "description": "Libreria para encontrar archivos markdown, identificar si contiene links y el estado de ellos",
+  "main": "mdLinks.js",
+  "scripts": {
+    "test": "test",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FRANCY15"
+  },
+  "keywords": [
+    "markdown",
+    "files",
+    "links",
+    "count",
+    "find",
+    "broken",
+    "validate",
+    "mdLinks"
+  ],
+  "author": "Francy Corredor",
+  "license": "ISC",
+  "bin":{
+    "md-links": "./cli.js"
   }
 }
