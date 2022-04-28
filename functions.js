@@ -1,6 +1,7 @@
 const { fstat } = require('fs');
 const path = require('path');
 const fs = require('fs');
+const userPath = process.argv;
 // function validateUrl(url) {
 //   return new Promise((resolve, reject) => {
 //     https.get(url, res =>  resolve(res))
@@ -42,28 +43,30 @@ function validatePath (pathUser) {
 
 // guardar en una const el resultado de la funcion validatePath
 
+
 function functionRecursive (pathUser) {
   let filesPath = [];
-  if(fs.statSync(pathUser).isFile() && path.extname(pathUser)=== '.md'){
+  if(fs.statSync(pathUser).isFile() && path.extname(pathUser) === '.md'){
     filesPath.push(pathUser);
   }else{
     if(fs.statSync(pathUser).isDirectory()){
       const directory = pathUser;
-      fs.readdir(directory).forEach(el => {
-        
-      })
+      let contentDirectory = fs.readdirSync(directory)
+        contentDirectory.forEach(el => {
+          functionRecursive(pathUser + '\\' + el).forEach(el => {
+            filesPath.push(el);
+          })
+          //repetimos el paso a paso inicial 
+        })
+
       //Leer directorio
       //recorrer directorio con un forEach
-    }else{
-      console.log('Error, por favor verifique la ruta');
-      //leer el directorio y recorrerlo, y preguntar si es md
     }
   }
   return filesPath;
 };
 
-console.log(functionRecursive('./BOG004-MD-LINKS'));
-
+console.log(functionRecursive('C:\\Users\\LABORATORIA\\OneDrive\\Escritorio\\LABORATORIA\\BOG004-md-links'));
 // Ejemplo cómo se va a consumir la libreria
 // ​
 // module.exports = {
