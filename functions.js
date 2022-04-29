@@ -1,7 +1,7 @@
 const { fstat } = require('fs');
 const path = require('path');
 const fs = require('fs');
-const userPath = process.argv;
+const userPath = process.argv[2];
 // function validateUrl(url) {
 //   return new Promise((resolve, reject) => {
 //     https.get(url, res =>  resolve(res))
@@ -30,10 +30,9 @@ const userPath = process.argv;
 //   return createBasicObject
 // }
 
-function validatePath (pathUser) {
-  console.log(pathUser);
+const validatePath = (pathUser) => {
   if(path.isAbsolute(pathUser)){
-    console.log('lo toma como absoluto; ');
+    console.log('lo toma como absoluto; ', pathUser);
     return pathUser;
   }else{
   const pathAbsolute = path.resolve(pathUser).normalize();
@@ -41,10 +40,11 @@ function validatePath (pathUser) {
   }
 }
 
+let resultValidate = validatePath(userPath)
 // guardar en una const el resultado de la funcion validatePath
 
 
-function functionRecursive (pathUser) {
+const browseDirectory = (pathUser) => {
   let filesPath = [];
   if(fs.statSync(pathUser).isFile() && path.extname(pathUser) === '.md'){
     filesPath.push(pathUser);
@@ -53,20 +53,17 @@ function functionRecursive (pathUser) {
       const directory = pathUser;
       let contentDirectory = fs.readdirSync(directory)
         contentDirectory.forEach(el => {
-          functionRecursive(pathUser + '\\' + el).forEach(el => {
+          browseDirectory(pathUser + '\\' + el).forEach(el => {
             filesPath.push(el);
           })
-          //repetimos el paso a paso inicial 
         })
-
-      //Leer directorio
-      //recorrer directorio con un forEach
     }
   }
   return filesPath;
 };
 
-console.log(functionRecursive('C:\\Users\\LABORATORIA\\OneDrive\\Escritorio\\LABORATORIA\\BOG004-md-links'));
+console.log('Resultado consultar directorio', browseDirectory(resultValidate));
+// console.log(browseDirectory('C:\\Users\\LABORATORIA\\OneDrive\\Escritorio\\LABORATORIA\\BOG004-md-links'));
 // Ejemplo cómo se va a consumir la libreria
 // ​
 // module.exports = {
