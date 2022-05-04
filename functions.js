@@ -1,6 +1,7 @@
 const { fstat } = require('fs');
 const path = require('path');
 const fs = require('fs');
+const { create } = require('domain');
 const userPath = process.argv[2];
 
 // function validateUrl(url) {
@@ -42,58 +43,101 @@ const browseDirectory = (pathUser) => {
   return filesPath;
 };
 
-const resultFilesPath = browseDirectory(resultValidate);
+let resultFilesPath = browseDirectory(resultValidate);
 
-function getLinks (resultFilesPath) {
-  let urls = []; // Almacena las urls encontradas en los archivos MD.
-  let urlsObject = []; // Almacena los objetos creados por cada url.
-  let paths = []; // Almacena la ruta de cada url encontrada.
-  
-  resultFilesPath.forEach(fileMD => {
-    // const readFile = fs.promises.readFile(fileMD, 'utf-8'); // con esta opción recibimos promise pending...
-    const readFile = fs.readFileSync(fileMD, 'utf-8'); // Este método no se puede usar... pero funciona!
+let urls = []; //array para enlistar los links
+let paths = []; //array para enlistar la ruta de los archivos.md
+let objectMD = []; //este será mi objeto resultado
+
+const readMDfiles = (mdFile) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(mdFile, 'utf-8', (error,data) => {
+            if (error) return reject(error);
+            else {
+                // resolve(data)
+                resolve ({
+                    route : mdFile,
+                    fileContent : data
+                })
+            };
+        })
+    })
+}
+
+Promise.all(resultFilesPath.map(readMDfiles))
+.then((data) => { 
+    // console.log(data);
+    const regExpUrls = /!*\[(.+?)\]\((.+?)\)/gi;
+    data.forEach(item => {
+        const urlsFound = [... item.fileContent.toString().match(regExpUrls)];
+        urlsFound.forEach(url => {
+            urls.push(url);
+            paths.push(item.route)
+        });
+    })
+
+    // return linksMD
+
+    urls.map((totalLink) => {
+        let index = urls.indexOf(totalLink);
+        const splitUrl = totalLink.split('](');
+        const text = splitUrl[0].slice(1);
+        const href = splitUrl[1].slice(0, -1);
+                    
+        objectMD.push({
+            href,
+            text,
+            file : paths[index]
+            })
     
-    const linkRegExp = /!*\[(.+?)\]\((.+?)\)/gi;
-
-    const urlsFound = [... readFile.matchAll(linkRegExp)]; // busca las coincidencias entre los archivos que estamos evaluando con la expresión regular.
-    urlsFound.forEach(url => {
-      urls.push(url); // Almacenamos en el array urls las coincidencias.
-      paths.push(fileMD); // Almacenamos en el array la ruta donde encontramos la url.
-    });
-
-    urls.forEach(url => {
-      let index = urls.indexOf(url); // identifica posición de la url en el array.
-      const closingB = url[0].indexOf(']');
-      let enclosedUrl = url[0].slice(closingB + 1);
-      const opening = enclosedUrl.indexOf('(');
-      const closing = enclosedUrl.indexOf(')');
-      let urlOnly = enclosedUrl.slice(opening + 1, closing); //extrae sólo el link
-
-      if(url.includes(' ')){
-        url = url.slice(0, (url.indexOf(' '))); //si este contiene otro texto además de la url, lo elimina
-      }
-
-      let descriptionLink = url[1];
-      if(url[1].length >= 50){
-        descriptionLink = url[1].slice(0, 50); // si la longitud del texto es mayor a 50 caracteres, los elimina
-      }
-
-      urlsObject.push({
-        href: urlOnly,
-        text: descriptionLink,
-        file: paths[index],
-      });
-  });
 })
-return console.log('este es mi objeto: ', urlsObject); 
+console.log('Este es el arrayy de objetos', objectMD);
+return objectMD;
 
-}
+})
+.catch(error => console.log(error))
 
 
-getLinks(resultFilesPath);
-// ​
-module.exports = {
-    // validateUrl,
-    browseDirectory,
-    validatePath,
-}
+// const readMDfiles = (arrayMD) => {
+//     arrayMD.forEach(fileMD => {
+//       let urls = []; // Almacena las urls encontradas en los archivos MD.
+//       let urlsObject = []; // Almacena los objetos creados por cada url.
+//       let paths = []; // Almacena la ruta de cada url encontrada.
+//         fs.promises.readFile(fileMD, 'utf-8')
+//         .then((result)=> {
+//             const linkRegExp = /!*\[(.+?)\]\((.+?)\)/gi;
+//             const urlsFound = [... result.match(linkRegExp)]; // busca las coincidencias entre los archivos que estamos evaluando con la expresión regular.
+            
+//             urlsFound.forEach(url => {
+//                 urls.push(url); // Almacenamos en el array urls las coincidencias.
+//                 paths.push(fileMD); // Almacenamos en el array la ruta donde encontramos la url.
+//             })
+              
+//             urls.map((url) => { 
+//               let index = urls.indexOf(url); 
+//               const splitUrl = url.split("](")
+//               const text = splitUrl[0].slice(1)
+//               const href = splitUrl[1].slice(0, -1)
+              
+//               urlsObject.push({
+//                     href,
+//                     text,
+//                     file: paths[index]
+//                   });
+//                 });
+//                 return console.log('Este es mi resultado 1', urlsObject);
+//         })
+//         .catch((error)=>{
+//             console.log('este es el error', error);
+//         })
+//     })
+//   }
+
+// const result =  readMDfiles(resultFilesPath);
+// console.log('Este es mi resultado 2', result);
+
+// module.exports = { 
+//     // validateUrl,
+//     browseDirectory,
+//     validatePath,
+// }

@@ -23,7 +23,10 @@
   ],
   "author": "Francy Corredor",
   "license": "ISC",
-  "bin":{
+  "bin": {
     "md-links": "./cli.js"
+  },
+  "dependencies": {
+    "cli-color": "^2.0.2"
   }
 }
