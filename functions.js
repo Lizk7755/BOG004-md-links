@@ -2,14 +2,14 @@ const { fstat } = require("fs");
 const path = require("path");
 const fs = require("fs");
 const { create } = require("domain");
-const userPath = process.argv[2];
 
-// function validateUrl(url) {
-//   return new Promise((resolve, reject) => {
-//     https.get(url, res =>  resolve(res))
-//       .on('error', e => reject(false));
-//   });
-// }
+
+function validateUrl(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, res =>  resolve(res))
+      .on('error', e => reject(false));
+  });
+}
 
 const validatePath = (pathUser) => {
   if (path.isAbsolute(pathUser)) {
@@ -21,12 +21,8 @@ const validatePath = (pathUser) => {
   }
 };
 
-let resultValidate = validatePath(userPath);
-// guardar en una const el resultado de la funcion validatePath
-
 const browseDirectory = (pathUser) => {
-  const separador =
-    process.platform === "win32" || process.platform === "win64" ? "\\" : "/";
+  const separator = process.platform === "win32" || process.platform === "win64" ? "\\" : "/";
   let filesPath = [];
   if (fs.statSync(pathUser).isFile() && path.extname(pathUser) === ".md") {
     filesPath.push(pathUser);
@@ -35,7 +31,7 @@ const browseDirectory = (pathUser) => {
       const directory = pathUser;
       let contentDirectory = fs.readdirSync(directory);
       contentDirectory.forEach((el) => {
-        browseDirectory(pathUser + "\\" + el).forEach((el) => {
+        browseDirectory(pathUser + separator + el).forEach((el) => {
           filesPath.push(el);
         });
       });
@@ -43,8 +39,6 @@ const browseDirectory = (pathUser) => {
   }
   return filesPath;
 };
-
-let resultFilesPath = browseDirectory(resultValidate);
 
 let urls = []; //array para enlistar los links
 let paths = []; //array para enlistar la ruta de los archivos.md
@@ -64,7 +58,9 @@ const readMDfiles = (mdFile) => {
     });
   });
 };
-const objectLinks = Promise.all(resultFilesPath.map(readMDfiles))
+
+
+const objectLinks = (arrayMD) => Promise.all(arrayMD.map(readMDfiles))
   .then((data) => {
     const regExpUrls = /!*\[(.+?)\]\((.+?)\)/gi;
     data.forEach((item) => {
@@ -89,13 +85,17 @@ const objectLinks = Promise.all(resultFilesPath.map(readMDfiles))
     });
     return objectResult;
   })
-  .catch((error) => reject(error));
+  .catch((error) => reject(error))
 
-objectLinks.then((response) => {
-  console.log("este es mi objeto final", objectResult);
-});
-// module.exports = {
-//     // validateUrl,
-//     browseDirectory,
-//     validatePath,
-// }
+  // const prueba = readMDfiles('./DirectorioPrueba/ejemploPrueba.md')
+  // .then(resp => resp)
+  // .catch(resp => resp)
+  
+  // prueba.then(resp => console.log(resp))
+
+module.exports = {
+    validateUrl,
+    browseDirectory,
+    validatePath,
+    objectLinks,
+}
