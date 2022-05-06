@@ -5,7 +5,10 @@ const path = require("path");
 const fsPromises = require("fs").promises;
 const clc = require("cli-color");
 const userPath = process.argv[2];
+let validateFromConsole = process.argv[3];
 
+console.log('process', process.argv[3]);
+console.log('validate', validateFromConsole);
 
 const {
   validateUrl,
@@ -20,7 +23,8 @@ let respuesta = {
   }
 
 function mdLinks(path = "", options = { validate: false }) {
-    const {validate} = options
+ const {validate} = options
+  console.log('este es VALIDATE', validate);
   return new Promise((resolve, reject) => {
     const pathAbsolute = validatePath(userPath);
     const readDirectory = browseDirectory(pathAbsolute);
@@ -53,10 +57,7 @@ function mdLinks(path = "", options = { validate: false }) {
   });
 }
 
-// mdLinks('./DirectorioPrueba/ejemploPrueba', false).then(resp =>{
-//     console.log('resp', resp);
-// })
-
-mdLinks("./DirectorioPrueba", { validate: true })
+mdLinks("./DirectorioPrueba", {validate: validateFromConsole})
   .then((links) => console.log("links: ", links))
   .catch(console.error);
+
