@@ -6,7 +6,7 @@
   },
   "scripts": {
     "test": "test",
-    "start": "node src/functions.js"
+    "start": "node src/index.js"
   },
   "description": "## Índice",
   "main": "index.js",
