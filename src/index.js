@@ -1,11 +1,6 @@
-const { rejects } = require("assert");
-const fs = require("fs");
-const { resolve } = require("path");
-const path = require("path");
-const fsPromises = require("fs").promises;
-const clc = require("cli-color");
 const userPath = process.argv[2];
-let validateFromConsole = process.argv[3];
+// let validateFromConsole = process.argv[3];
+const optionsUser = process.argv;
 
 const {
   validateUrl,
@@ -14,49 +9,75 @@ const {
   objectLinks,
 } = require("./functions.js");
 
-let respuesta = {
+let response = {
     data: [],
     errors: ''
   }
 
-function mdLinks(path = "", options = { validate: false }) {
-  const {validate} = options
+function mdLinks(path = "", options = { validate: false, stats : '' }) {
+//  const {validate, stats} = options
   return new Promise((resolve, reject) => {
     const pathAbsolute = validatePath(userPath);
     const readDirectory = browseDirectory(pathAbsolute);
     objectLinks(readDirectory)
-      .then((resolve) => {
-        respuesta.data= resolve;
-      })
-      .then(() => {
-        if (validate === 'validate') {
-          let urlValidatedList = respuesta.data.map((objeto) =>
-            validateUrl(objeto.href)
-              .then((res) => {
-                objeto.status = res.statusCode;
-                objeto.ok =
-                  res.statusCode >= 200 && res.statusCode <= 399 ? "ok" : "fail";
-              })
-              .catch((error) => {
-                objeto.status = error.code;
-                objeto.ok = "fail";
-              })
-          );
-          Promise.all(urlValidatedList).then(() => {
-            resolve(respuesta.data);
+    .then((resolve) => {
+      response.data = resolve;
+    })
+    .then(() => {
+      if (optionsUser.includes("--validate") || optionsUser.includes("--v")) {
+        let urlValidatedList = response.data.map((object) =>
+          validateUrl(object.href)
+            .then((res) => {
+              object.status = res.statusCode;
+              object.ok =
+                res.statusCode >= 200 && res.statusCode <= 399 ? "ok" : "fail";
+            })
+            .catch((error) => {
+              object.status = error.code;
+              object.ok = "fail";
+            })
+        );
+        Promise.all(urlValidatedList)
+          .then(() => {
+            resolve(response.data);
+          })
+          .then(() => { // Para mostrar la tabla con broken se debe esperar a que termine la validacion con .then
+            if (optionsUser.includes("--s")) {
+              let filterDataWithHref = response.data.filter((object) =>
+                  object.hasOwnProperty("href")
+                );
+              let filterDataWithStatus = response.data.filter((object) =>
+                object.ok === 'fail'
+              );
+                let result = {
+                  Total: filterDataWithHref.length,
+                  Unique: filterDataWithHref.length,
+                  Broken: filterDataWithStatus.length,
+                };
+                console.table(result)
+            }
           });
+      } else if ((!optionsUser.includes("--validate") || !optionsUser.includes("--v")) && (optionsUser.includes("--stats") || optionsUser.includes("--s"))) {
+        let filterDataWithHref = response.data.filter((object) =>
+            object.hasOwnProperty("href")
+          );
+
+          let result = {
+            Total: filterDataWithHref.length,
+            Unique: filterDataWithHref.length,
+          };
+          console.table(result);
+      }else {
+        if (!response.errors) {
+          resolve(response.data);
         } else {
-          if (!respuesta.errors) {
-            resolve(respuesta.data);
-          } else {
-            reject(respuesta.errors);
-          }
+          reject(response.errors);
         }
       }
-      );
+    })
   });
 }
 
-mdLinks("./DirectorioPrueba", {validate: validateFromConsole})
+mdLinks(userPath, {validate: optionsUser, stats: optionsUser })
   .then((links) => console.log("links: ", links))
   .catch(console.error);
