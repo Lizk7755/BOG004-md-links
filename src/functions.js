@@ -92,6 +92,13 @@ const objectLinks = (arrayMD) => Promise.all(arrayMD.map(readMDfiles))
   // .catch(resp => resp)
   
   // prueba.then(resp => console.log(resp))
+  function stats (linksArray) {
+    let validateLinks = 0;
+    let invalidateLinks = 0;
+
+    let unique = new set (linksArray.map(link => link.href === link.file))
+  }
+
 
 module.exports = {
     validateUrl,
