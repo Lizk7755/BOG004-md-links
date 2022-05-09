@@ -16,6 +16,11 @@ let response = {
 
 function mdLinks(path = "", options = { validate: false, stats : '' }) {
 //  const {validate, stats} = options
+
+  let filterDataWithHref
+  let unique
+  let result
+
   return new Promise((resolve, reject) => {
     const pathAbsolute = validatePath(userPath);
     const readDirectory = browseDirectory(pathAbsolute);
@@ -23,7 +28,7 @@ function mdLinks(path = "", options = { validate: false, stats : '' }) {
     .then((resolve) => {
       response.data = resolve;
     })
-    .then(() => {
+    .then (() => {
       if (optionsUser.includes("--validate") || optionsUser.includes("--v")) {
         let urlValidatedList = response.data.map((object) =>
           validateUrl(object.href)
@@ -42,33 +47,39 @@ function mdLinks(path = "", options = { validate: false, stats : '' }) {
             resolve(response.data);
           })
           .then(() => { // Para mostrar la tabla con broken se debe esperar a que termine la validacion con .then
-            if (optionsUser.includes("--s")) {
-              let filterDataWithHref = response.data.filter((object) =>
+            if (optionsUser.includes("--s") || optionsUser.includes("--s") ) {
+              filterDataWithHref = response.data.filter((object) =>
                   object.hasOwnProperty("href")
                 );
-              let filterDataWithStatus = response.data.filter((object) =>
+              filterDataWithStatus = response.data.filter((object) =>
                 object.ok === 'fail'
               );
-                let result = {
+              unique = [... new Set ((response.data).map(object  => object.href ))]
+
+                result = {
                   Total: filterDataWithHref.length,
-                  Unique: filterDataWithHref.length,
+                  Unique: unique.length,
                   Broken: filterDataWithStatus.length,
                 };
                 console.table(result)
+            } else {
+              console.log("Links desde promesa: ",response.data)//pinta aqui
             }
           });
       } else if ((!optionsUser.includes("--validate") || !optionsUser.includes("--v")) && (optionsUser.includes("--stats") || optionsUser.includes("--s"))) {
-        let filterDataWithHref = response.data.filter((object) =>
+          filterDataWithHref = response.data.filter((object) =>
             object.hasOwnProperty("href")
           );
+          unique = [... new Set ((response.data).map(object  => object.href ))]
 
-          let result = {
+          result = {
             Total: filterDataWithHref.length,
-            Unique: filterDataWithHref.length,
+            Unique: unique.length,
           };
           console.table(result);
       }else {
         if (!response.errors) {
+          console.log(response.data);
           resolve(response.data);
         } else {
           reject(response.errors);
@@ -77,7 +88,6 @@ function mdLinks(path = "", options = { validate: false, stats : '' }) {
     })
   });
 }
-
 mdLinks(userPath, {validate: optionsUser, stats: optionsUser })
-  .then((links) => console.log("links: ", links))
+  .then((links) => links)
   .catch(console.error);
