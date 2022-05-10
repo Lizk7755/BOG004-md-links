@@ -85,7 +85,7 @@ const objectLinks = (arrayMD) => Promise.all(arrayMD.map(readMDfiles))
     });
     return objectResult;
   })
-  .catch((error) => reject(error))
+  .catch((error) => console.log("La ruta del archivo o carpeta es obligatorio", error));
 
   // const prueba = readMDfiles('./DirectorioPrueba/ejemploPrueba.md')
   // .then(resp => resp)
@@ -99,10 +99,65 @@ const objectLinks = (arrayMD) => Promise.all(arrayMD.map(readMDfiles))
     let unique = new set (linksArray.map(link => link.href === link.file))
   }
 
+  function CreateObjectWithvalidateUrl (data, optionsUser) {
+
+    let urlValidatedList = data.map((object) =>
+          validateUrl(object.href)
+            .then((res) => {
+              object.status = res.statusCode;
+              object.ok =
+                res.statusCode >= 200 && res.statusCode <= 399 ? "ok" : "fail";
+            })
+            .catch((error) => {
+              object.status = error.code;
+              object.ok = "fail";
+            })
+        );
+        Promise.all(urlValidatedList)
+          .then(() => { // Para mostrar la tabla con broken se debe esperar a que termine la validacion con .then
+            if (optionsUser.stats === "--s" || optionsUser.stats === "--stats" ) {
+              const filterDataWithHref = getTotalLinks(data);
+              const filterDataWithStatus = data.filter((object) =>
+                object.ok === 'fail'
+              );
+              const unique = getUnique(data)
+
+                result = {
+                  Total: filterDataWithHref.length,
+                  Unique: unique.length,
+                  Broken: filterDataWithStatus.length,
+                };
+                console.table(result)
+            } else {
+              console.log("Links desde promesa: ", data)//pinta aqui
+            }
+          });
+  }
+
+  function objectfitStat (data) {
+    const filterDataWithHref = getTotalLinks(data);
+    const unique = getUnique(data)
+
+    result = {
+      Total: filterDataWithHref.length,
+      Unique: unique.length,
+    };
+    console.table(result);
+  }
+
+  function getUnique (data) {
+    return [... new Set ((data).map(object  => object.href ))]
+  }
+
+  function getTotalLinks (data) {
+    return data.filter((object) => object.hasOwnProperty("href"))
+  }
 
 module.exports = {
     validateUrl,
     browseDirectory,
     validatePath,
     objectLinks,
+    CreateObjectWithvalidateUrl,
+    objectfitStat
 }
