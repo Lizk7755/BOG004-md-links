@@ -11,7 +11,7 @@ let response = {
     errors: ''
   }
 
-function mdLinks(path = "", optionsUser = { validate: false, stats : '' }) {
+function mdLinks(path = "", optionsUser = { validate: false, stats : false }) {
 //  const {validate, stats} = options
   return new Promise((resolve, reject) => {
     const pathAbsolute = validatePath(path);// función que verifica la ruta y la vuelve absoluta
@@ -21,17 +21,18 @@ function mdLinks(path = "", optionsUser = { validate: false, stats : '' }) {
       response.data = resolve;
     })
     .then (() => {
-      if (optionsUser?.validate === "--validate" || optionsUser?.validate ==="--v") {
+      if (optionsUser.validate) {
         
-        CreateObjectWithvalidateUrl(response.data, optionsUser)
+        resolve (CreateObjectWithvalidateUrl(response.data, optionsUser)
+        .then((data) => data))
       
-      } else if ((optionsUser?.validate !== ("--validate") || optionsUser?.validate !== ("--v")) && (optionsUser?.stats===("--stats") || optionsUser?.stats===("--s"))) {
+      } else if (optionsUser.stats) {
 
-        objectfitStat(response.data)
+        resolve (objectfitStat(response.data))
       
       }else {
         if (!response.errors) {
-          console.log(response.data);
+          //console.log(response.data);
           resolve(response.data);
         } else {
           reject(response.errors);

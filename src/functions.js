@@ -3,38 +3,43 @@ const path = require("path");
 const fs = require("fs");
 const { create } = require("domain");
 const https = require('https');
+const clc = require ('cli-color')
 
-function validateUrl(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, res =>  resolve(res))
-      .on('error', e => reject(false));
-  });
-}
+// validar la ruta y la convierte a absoluta
 
 const validatePath = (pathUser) => {
-  if (path.isAbsolute(pathUser)) {
-    console.log("lo toma como absoluto; ", pathUser);
+
+  if(!fs.existsSync(pathUser)){
+    console.log(clc.cyan('La ruta ingresada no es válida o no existe'))
+    process.exit();
+  } else if (path.isAbsolute(pathUser)) { // ruta del usuario
     return pathUser;
-  } else {
-    const pathAbsolute = path.resolve(pathUser).normalize();
+  }
+  else {
+    const pathAbsolute = path.resolve(pathUser).normalize(); // normalize estandarizar la ruta
     return pathAbsolute;
   }
 };
 
+// funcion recursiva en busqueda de archivos md y los guarda en un array
 const browseDirectory = (pathUser) => {
   const separator = process.platform === "win32" || process.platform === "win64" ? "\\" : "/";
-  let filesPath = [];
+  let filesPath = []; // archivos md encontrados
   if (fs.statSync(pathUser).isFile() && path.extname(pathUser) === ".md") {
-    filesPath.push(pathUser);
+    filesPath.push(pathUser); //statSync da información sobre la ruta del archivo //  isFile verifica el tipo de archivo // extname extensión
   } else {
     if (fs.statSync(pathUser).isDirectory()) {
       const directory = pathUser;
-      let contentDirectory = fs.readdirSync(directory);
+      let contentDirectory = fs.readdirSync(directory); // readdiSync ingresa al directorio y lo lee y devuelve un array
       contentDirectory.forEach((el) => {
         browseDirectory(pathUser + separator + el).forEach((el) => {
           filesPath.push(el);
         });
       });
+    }
+    else if (filesPath.length === 0) {
+      console.log(clc.magenta("No se encontraron archivos markdown"));
+      process.exit();
     }
   }
   return filesPath;
@@ -44,6 +49,8 @@ let urls = []; //array para enlistar los links
 let paths = []; //array para enlistar la ruta de los archivos.md
 let objectResult = []; //este será mi objeto resultado
 
+
+// ingresa cada uno de los archivos md y los lee
 const readMDfiles = (mdFile) => {
   return new Promise((resolve, reject) => {
     fs.readFile(mdFile, "utf-8", (error, data) => {
@@ -59,20 +66,24 @@ const readMDfiles = (mdFile) => {
   });
 };
 
-
-const objectLinks = (arrayMD) => Promise.all(arrayMD.map(readMDfiles))
-  .then((data) => {
-    const regExpUrls = /!*\[(.+?)\]\((.+?)\)/gi;
-    data.forEach((item) => {
-      const urlsFound = [...item.fileContent.toString().match(regExpUrls)];
-      urlsFound.forEach((url) => {
-        urls.push(url);
-        paths.push(item.route);
+// con la data obtenida en la promesa vamos a buscar los enlaces
+const objectLinks = (arrayMD) =>
+  Promise.all(arrayMD.map(readMDfiles))
+    .then((data) => {
+      const regExpUrls = /!*\[(.+?)\]\((.+?)\)/gi;
+      data.forEach((item) => {
+        const urlsFound = item.fileContent.match(regExpUrls)
+        if(urlsFound){
+          urlsFound.forEach((url) => {
+            urls.push(url);
+            paths.push(item.route);
+          })
+        }
       });
-    });
 
+// se construye el objeto respuesta path
     objectResult = urls.map((totalLink) => {
-      let index = urls.indexOf(totalLink);
+      let index = urls.indexOf(totalLink); 
       const splitUrl = totalLink.split("](");
       const text = splitUrl[0].slice(1);
       const href = splitUrl[1].slice(0, -1);
@@ -85,22 +96,18 @@ const objectLinks = (arrayMD) => Promise.all(arrayMD.map(readMDfiles))
     });
     return objectResult;
   })
-  .catch((error) => console.log("La ruta del archivo o carpeta es obligatorio", error));
+  .catch((error) => console.error(error));
 
-  // const prueba = readMDfiles('./DirectorioPrueba/ejemploPrueba.md')
-  // .then(resp => resp)
-  // .catch(resp => resp)
-  
-  // prueba.then(resp => console.log(resp))
-  function stats (linksArray) {
-    let validateLinks = 0;
-    let invalidateLinks = 0;
 
-    let unique = new set (linksArray.map(link => link.href === link.file))
-  }
+  // valida status code
+function validateUrl(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, res =>  resolve(res))
+      .on('error', e => reject(false));
+  });
+}
 
   function CreateObjectWithvalidateUrl (data, optionsUser) {
-
     let urlValidatedList = data.map((object) =>
           validateUrl(object.href)
             .then((res) => {
@@ -113,9 +120,9 @@ const objectLinks = (arrayMD) => Promise.all(arrayMD.map(readMDfiles))
               object.ok = "fail";
             })
         );
-        Promise.all(urlValidatedList)
+        return Promise.all(urlValidatedList)
           .then(() => { // Para mostrar la tabla con broken se debe esperar a que termine la validacion con .then
-            if (optionsUser.stats === "--s" || optionsUser.stats === "--stats" ) {
+            if (optionsUser.stats) {
               const filterDataWithHref = getTotalLinks(data);
               const filterDataWithStatus = data.filter((object) =>
                 object.ok === 'fail'
@@ -127,11 +134,13 @@ const objectLinks = (arrayMD) => Promise.all(arrayMD.map(readMDfiles))
                   Unique: unique.length,
                   Broken: filterDataWithStatus.length,
                 };
-                console.table(result)
+                //console.table(result)
+                return result;
             } else {
-              console.log("Links desde promesa: ", data)//pinta aqui
+              //console.log("Links desde promesa: ", data)//pinta aqui
+                return data;
             }
-          });
+          })
   }
 
   function objectfitStat (data) {
@@ -142,7 +151,7 @@ const objectLinks = (arrayMD) => Promise.all(arrayMD.map(readMDfiles))
       Total: filterDataWithHref.length,
       Unique: unique.length,
     };
-    console.table(result);
+    return result;
   }
 
   function getUnique (data) {
