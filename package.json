@@ -5,7 +5,7 @@
     "node": ">=14.x"
   },
   "scripts": {
-    "test": "test",
+    "test": "jest --coverage",
     "start": "node src/index.js"
   },
   "description": "## Índice",
@@ -29,11 +29,14 @@
   },
   "homepage": "https://github.com/Lizk7755/BOG004-md-links#readme",
   "bin": {
-    "md-links": "./cli.js"
+    "md-links": "src/cli.js"
   },
   "dependencies": {
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
     "cli-color": "^2.0.2"
+  },
+  "devDependencies": {
+    "jest": "^28.1.0"
   }
 }
