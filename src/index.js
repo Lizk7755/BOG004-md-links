@@ -6,15 +6,19 @@ const {
   objectfitStat
 } = require("./functions.js");
 
-let response = {
+
+
+function mdLinks(path = "", optionsUser = { validate: false, stats : false }) {
+
+  let response = {
     data: [],
     errors: ''
   }
-
-function mdLinks(path = "", optionsUser = { validate: false, stats : false }) {
 //  const {validate, stats} = options
   return new Promise((resolve, reject) => {
-    const pathAbsolute = validatePath(path);// función que verifica la ruta y la vuelve absoluta
+    const pathAbsolute = validatePath(path);
+    
+    // función que verifica la ruta y la convierte en absoluta
     const readDirectory = browseDirectory(pathAbsolute); // función que retorna un array con los archivos md
     objectLinks(readDirectory) //leer directorios y traer los links
     .then((resolve) => {

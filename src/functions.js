@@ -15,6 +15,7 @@ const validatePath = (pathUser) => {
   } else if (path.isAbsolute(pathUser)) { // ruta del usuario
     return pathUser;
   }
+  
   else {
     const pathAbsolute = path.resolve(pathUser).normalize(); // normalize estandarizar la ruta
     return pathAbsolute;
@@ -45,10 +46,6 @@ const browseDirectory = (pathUser) => {
   return filesPath;
 };
 
-let urls = []; //array para enlistar los links
-let paths = []; //array para enlistar la ruta de los archivos.md
-let objectResult = []; //este será mi objeto resultado
-
 
 // ingresa cada uno de los archivos md y los lee
 const readMDfiles = (mdFile) => {
@@ -67,8 +64,13 @@ const readMDfiles = (mdFile) => {
 };
 
 // con la data obtenida en la promesa vamos a buscar los enlaces
-const objectLinks = (arrayMD) =>
-  Promise.all(arrayMD.map(readMDfiles))
+const objectLinks = (arrayMD) => {
+
+  let urls = []; //array para enlistar los links
+  let paths = []; //array para enlistar la ruta de los archivos.md
+  let objectResult = []; //este será mi objeto resultado
+
+  return  Promise.all(arrayMD.map(readMDfiles))
     .then((data) => {
       const regExpUrls = /!*\[(.+?)\]\((.+?)\)/gi;
       data.forEach((item) => {
@@ -96,7 +98,8 @@ const objectLinks = (arrayMD) =>
     });
     return objectResult;
   })
-  .catch((error) => console.error(error));
+  .catch((error) => console.error(error)
+  )};
 
 
   // valida status code

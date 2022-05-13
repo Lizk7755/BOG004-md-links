@@ -16,25 +16,25 @@ const objectLinks = require('../src/functions.js').objectLinks
     it("recibe un archivo valida si es .md, si es un directorio lo recorre y encuentra archivos .md, si lo es, entonces lo almacena en un array", () => {
       let userDirectoryTest = 'carpeta-prueba';
       let result = [
-        'carpeta-prueba/archivo.md', 'carpeta-prueba/carpeta-prueba-uno/archivo-uno.md'
+        'carpeta-prueba/archivo.md', 'carpeta-prueba/carpeta-prueba-uno/archivo-uno.md', 'carpeta-prueba/prueba-vacio.md'
       ]
       return expect(browseDirectory(userDirectoryTest)).toEqual(result);
     })
 
     it("valida los archivos .md, y encuentra links, los cuales almacena en un objeto", () => {
       let arrayTest = [
-        'carpeta-prueba/carpeta-prueba-uno/archivo-uno.md'
+        '/Users/cristianvillota/Desktop/Proyectos/BOG004-md-links/carpeta-prueba/carpeta-prueba-uno/archivo-uno.md'
       ]
 
       let objectExpect = [{
         href: 'https://www.google.com/doesntexist',
         text: 'link not found',
-        file: 'carpeta-prueba/carpeta-prueba-uno/archivo-uno.md'
+        file: '/Users/cristianvillota/Desktop/Proyectos/BOG004-md-links/carpeta-prueba/carpeta-prueba-uno/archivo-uno.md'
       },
       {
         href: 'https://es.wikipedia.org/wiki/Markdown',
         text: 'Markdown',
-        file: 'carpeta-prueba/carpeta-prueba-uno/archivo-uno.md'
+        file: '/Users/cristianvillota/Desktop/Proyectos/BOG004-md-links/carpeta-prueba/carpeta-prueba-uno/archivo-uno.md'
       },
       ]
       
