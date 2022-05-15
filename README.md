@@ -11,7 +11,7 @@ Es una **Librería** que permite extraer y validar los links encontrados en arch
 
 ## Instalación de librería (npm)
 
-> **Ejecute en su terminal el comando:** npm
+> **Ejecute en su terminal el comando:** npm i md-links.liz
 
 ## Guía para el uso de la librería
 
@@ -26,21 +26,21 @@ ___________
 1. Solo ingresamos la ruta absoluta o relativa del archivo o directorio y nos mostrará un array de objetos con las siguientes llaves:
 	> Este objeto se muestra unicamente cuando no recibe options. 
 	
-[Imagen-Sin options](img/sin options.jpg)
+[Imagen-Sin options](img/Sin options.png)
 
 2. Cuando se ingresa --validate || --v se arroja un objeto con cuatro llaves.
 	> Esta opción validará los link dentro del archivo especificado en la ruta ingresada.
     > Retornará un array de objetos con los links validados. 
     > Las llaves que arrojará: contienen mensaje  que nos indica los codigos de las respuestas http de los links analizados  y un ok (que arroja ok o fail dependiendo si el link funciona o está roto).
     
-[Imagen con --v](img/sin options.jpg)
+[Imagen con --v](img/--v.png) 
 
 3. Cuando se ingresa --stats || --s nos arroja una tabla con la estadistica del **total** y  **unique**.
 	> **total**  Total de link encontrados
     > Retornará un array de objetos con los links validados. 
     > **unique** Con el número total de enlaces no repetidos.
     
-[Imagen con --s](img/sin options.jpg)
+[Imagen con --s](img/--s.png)
 
 4. Cuando se ingresa --validate || --v  **y** --stats || --s nos arroja una tabla con la estadistica del **total**, **unique** y **broken**.
 	> **total**  Total de link encontrados
@@ -48,7 +48,7 @@ ___________
     > **unique** Con el número total de enlaces no repetidos.
     > **broken** Con el número total de enlaces rotos (404).
 
-[Imagen con --v, --s](img/sin options.jpg)
+[Imagen con --v, --s](img/--v --s.png)
     
 ## Elaborado por:
 
