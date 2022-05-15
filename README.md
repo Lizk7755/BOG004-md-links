@@ -26,21 +26,21 @@ ___________
 1. Solo ingresamos la ruta absoluta o relativa del archivo o directorio y nos mostrará un array de objetos con las siguientes llaves:
 	> Este objeto se muestra unicamente cuando no recibe options. 
 	
-[Sin options](https://img/Sinoptions.png)
+![Alt text](img/Sinoptions.png)
 
 2. Cuando se ingresa --validate || --v se arroja un objeto con cuatro llaves.
 	> Esta opción validará los link dentro del archivo especificado en la ruta ingresada.
     > Retornará un array de objetos con los links validados. 
     > Las llaves que arrojará: contienen mensaje  que nos indica los codigos de las respuestas http de los links analizados  y un ok (que arroja ok o fail dependiendo si el link funciona o está roto).
     
-[Option --v](https://img/--v.png) 
+![Alt text](img/--v.png) 
 
 3. Cuando se ingresa --stats || --s nos arroja una tabla con la estadistica del **total** y  **unique**.
 	> **total**  Total de link encontrados
     > Retornará un array de objetos con los links validados. 
     > **unique** Con el número total de enlaces no repetidos.
     
-[Option --s](https://img/--s.png)
+![Alt text](img/--s.png)
 
 4. Cuando se ingresa --validate || --v  **y** --stats || --s nos arroja una tabla con la estadistica del **total**, **unique** y **broken**.
 	> **total**  Total de link encontrados
@@ -48,7 +48,7 @@ ___________
     > **unique** Con el número total de enlaces no repetidos.
     > **broken** Con el número total de enlaces rotos (404).
 
-[Options --v, --s](https://img/--v--s.png)
+![Alt text](img/--v--s.png)
     
 ## Elaborado por:
 
